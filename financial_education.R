@@ -1,6 +1,9 @@
 # Loading Necessary Libraries
 library(utils)
 library(tm)
+library(dplyr)
+library(stringr)
+library(stopwords)
 
 # Loading datasets
 fin_edu <- read.csv("financial-education-general.csv", na.strings = c("/", ""))
@@ -17,6 +20,64 @@ calculate_mode <- function(x) {
 
 # Calculate the mode of Confidence.Level column
 mode_confidence <- calculate_mode(fin_edu$Confidence.Level[!is.na(fin_edu$Confidence.Level)])
+
+#### Comment Analysis
+
+# Define the categories to count
+categories <- c("Model", "Content", "Extension", "Staff", "Instrument")
+
+# Initialize a named vector to store counts
+category_counts <- setNames(rep(0, length(categories)), categories)
+
+
+# Count occurrences of each category
+for (cat in fin_edu$Category) {
+# Split by delimiter and convert to lower case
+  cat_split <- str_split(cat, "/")[[1]]
+# Increment counts for each category found
+  for (sub_cat in cat_split) {
+    if (sub_cat %in% categories) {
+      category_counts[sub_cat] <- category_counts[sub_cat] + 1
+    }
+  }
+}
+
+# Convert the named vector to a data frame for better readability
+category_counts_df <- as.data.frame(as.table(category_counts))
+colnames(category_counts_df) <- c("Category", "Count")
+
+# Print the category counts
+print(category_counts_df)
+
+# Combine all sentences into a single string
+cb_compliment <- paste(key_compliment, collapse = " ")
+
+# Convert text to lower case
+cb_compliment <- tolower(cb_compliment)
+
+# Remove punctuation
+cb_compliment <- str_replace_all(cb_compliment, "[[:punct:]]", "")
+
+# Split the text into individual words
+words <- str_split(cb_compliment, "\\s+")[[1]]
+
+# Remove common stop words
+stop_words <- stopwords("en")
+words <- words[!words %in% stop_words]
+
+# Create a table of word frequencies
+word_freq <- table(words)
+
+# Convert to data frame and sort by frequency
+word_freq_df <- as.data.frame(word_freq, stringsAsFactors = FALSE)
+word_freq_df <- word_freq_df %>% arrange(desc(Freq))
+
+# Print the most common words
+print(word_freq_df)
+
+# good example *3
+# compliments on the presenter
+
 
 #### #### Word Frequency Analysis
 
