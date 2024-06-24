@@ -4,6 +4,8 @@ library(tm)
 library(dplyr)
 library(stringr)
 library(stopwords)
+library(graphics)
+library(RColorBrewer)
 
 # Loading datasets
 fin_edu <- read.csv("financial-education-general.csv", na.strings = c("/", ""))
@@ -48,6 +50,24 @@ colnames(category_counts_df) <- c("Category", "Count")
 
 # Print the category counts
 print(category_counts_df)
+
+#### #### Pie Chart
+
+# Define colors to use from a palette
+colors <- brewer.pal(nrow(category_counts_df), "Set3")
+
+# Plotting a pie chart with specified colors
+pie(category_counts_df$Count, labels = category_counts_df$Category,
+    col = colors,
+    main = "Distribution of Comment Categories")
+
+# Adding a legend with specified colors
+legend("topright", legend = category_counts_df$Category,
+       fill = colors,
+       title = "Categories",
+       cex = 0.8)
+
+
 
 # Combine all sentences into a single string
 cb_compliment <- paste(key_compliment, collapse = " ")
