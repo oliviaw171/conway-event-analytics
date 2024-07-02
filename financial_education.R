@@ -6,6 +6,7 @@ library(stringr)
 library(stopwords)
 library(graphics)
 library(RColorBrewer)
+library(ggplot2)
 
 # Loading datasets
 fin_edu <- read.csv("financial-education-general.csv", na.strings = c("/", ""))
@@ -22,6 +23,13 @@ calculate_mode <- function(x) {
 
 # Calculate the mode of Confidence.Level column
 mode_confidence <- calculate_mode(fin_edu$Confidence.Level[!is.na(fin_edu$Confidence.Level)])
+
+# Confidence level visualization
+ggplot(fin_edu, aes(x = Confidence.Level)) +
+  geom_histogram(binwidth = 1, color = "black", fill = "skyblue") +
+  labs(x = "Confidence Level", y = "Frequency", 
+       title = "Histogram of Confidence Levels")
+
 
 #### Comment Analysis
 
