@@ -30,6 +30,30 @@ ggplot(fin_edu, aes(x = Confidence.Level)) +
   labs(x = "Confidence Level", y = "Frequency", 
        title = "Histogram of Confidence Levels")
 
+# Comparative Analysis
+# Create a new column indicating presence of comments
+fin_edu$Comments_Present <- ifelse(!is.na(fin_edu$Comments), "Yes", "No")
+
+# Example: Compare confidence levels based on presence of comments
+ggplot(fin_edu, aes(x = Comments_Present, y = Confidence.Level, fill = Comments_Present)) +
+  geom_boxplot() +
+  labs(x = "Comments Present", y = "Confidence Level", 
+       title = "Comparison of Confidence Levels based on Comments Presence")
+
+
+# Perform two-sample t-test
+t_test <- t.test(Confidence.Level ~ Comments_Present, data = fin_edu)
+
+# Print the results
+print(t_test)
+
+# Perform Wilcoxon rank-sum test (Mann-Whitney U test)
+wilcox_test <- wilcox.test(Confidence.Level ~ Comments_Present, data = fin_edu)
+
+# Print the results
+print(wilcox_test)
+
+
 
 #### Comment Analysis
 
