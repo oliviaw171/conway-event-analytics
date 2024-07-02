@@ -34,7 +34,7 @@ ggplot(fin_edu, aes(x = Confidence.Level)) +
 # Create a new column indicating presence of comments
 fin_edu$Comments_Present <- ifelse(!is.na(fin_edu$Comments), "Yes", "No")
 
-# Example: Compare confidence levels based on presence of comments
+# Compare confidence levels based on presence of comments
 ggplot(fin_edu, aes(x = Comments_Present, y = Confidence.Level, fill = Comments_Present)) +
   geom_boxplot() +
   labs(x = "Comments Present", y = "Confidence Level", 
@@ -53,6 +53,23 @@ wilcox_test <- wilcox.test(Confidence.Level ~ Comments_Present, data = fin_edu)
 # Print the results
 print(wilcox_test)
 
+# Create a new column indicating presence of questions
+fin_edu$Question_Present <- ifelse(!is.na(fin_edu$Questions.Preventing.Action), "Yes", "No")
+
+# Compare confidence levels based on presence of questions
+ggplot(fin_edu, aes(x = Question_Present, y = Confidence.Level, fill = Question_Present)) +
+  geom_boxplot() +
+  labs(x = "Question Present", y = "Confidence Level", 
+       title = "Comparison of Confidence Levels based on Question Presence")
+
+# Create a binary column indicating overcome obstacles
+fin_edu$OO_Present <- ifelse(!is.na(fin_edu$Overcome.Obstacles), "Yes", "No")
+
+# Compare confidence levels based on presence of overcome obstacles
+ggplot(fin_edu, aes(x = OO_Present, y = Confidence.Level, fill = OO_Present)) +
+  geom_boxplot() +
+  labs(x = "Question Present", y = "Confidence Level", 
+       title = "Comparison of Confidence Levels based on Overcome Obstacles")
 
 
 #### Comment Analysis
