@@ -71,6 +71,29 @@ ggplot(fin_edu, aes(x = OO_Present, y = Confidence.Level, fill = OO_Present)) +
   labs(x = "Question Present", y = "Confidence Level", 
        title = "Comparison of Confidence Levels based on Overcome Obstacles")
 
+#### Question Analysis
+
+# Count occurrences of each category
+q_categories <- c("Credit card", "brokerage", "Bank", "tax", "financial planning", "insurance", "investment", "risk")
+q_category_counts <- setNames(rep(0, length(q_categories)), q_categories)
+
+
+for (cat1 in fin_edu$Question.Category) {
+  # Split by delimiter and convert to lower case
+  cat1_split <- str_split(cat1, "/")[[1]]
+  # Increment counts for each category found
+  for (sub_cat1 in cat1_split) {
+    if (sub_cat1 %in% q_categories) {
+      q_category_counts[sub_cat1] <- q_category_counts[sub_cat1] + 1
+    }
+  }
+}
+
+q_category_counts_df <- as.data.frame(as.table(q_category_counts))
+colnames(q_category_counts_df) <- c("Category", "Count")
+
+# Print the category counts
+print(q_category_counts_df)
 
 #### Comment Analysis
 
