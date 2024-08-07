@@ -53,13 +53,15 @@ joy_meta <- lapply(joy_cha, generate_metadata)
 #### Visualization
 
 # Function to create pie chart for categorical variables
+# Function to create pie chart for a categorical variable
 create_pie_chart <- function(data, column_name) {
   # Create a data frame with the counts of each unique value
   df <- data %>%
     group_by(!!sym(column_name)) %>%
     summarise(count = n()) %>%
     mutate(percentage = count / sum(count) * 100) %>%
-    arrange(desc(count))
+    arrange(desc(count)) %>%
+    mutate(label = paste0(round(percentage, 1), "%"))
   
   # Create the pie chart
   pie_chart <- ggplot(df, aes(x = "", y = percentage, fill = !!sym(column_name))) +
@@ -68,11 +70,13 @@ create_pie_chart <- function(data, column_name) {
     theme_void() +
     ggtitle(paste("Distribution of", column_name)) +
     theme(plot.title = element_text(hjust = 0.5)) +
+    geom_text(aes(label = label), position = position_stack(vjust = 0.5)) +
     labs(fill = column_name)
   
   # Print the pie chart
   print(pie_chart)
 }
+
 
 # Identify categorical variables, excluding columns with long answers
 categorical_vars <- setdiff(
