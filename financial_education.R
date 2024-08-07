@@ -4,6 +4,9 @@ library(tm)
 library(dplyr)
 library(stringr)
 library(stopwords)
+library(graphics)
+library(RColorBrewer)
+library(ggplot2)
 
 # Loading datasets
 fin_edu <- read.csv("financial-education-general.csv", na.strings = c("/", ""))
@@ -20,6 +23,77 @@ calculate_mode <- function(x) {
 
 # Calculate the mode of Confidence.Level column
 mode_confidence <- calculate_mode(fin_edu$Confidence.Level[!is.na(fin_edu$Confidence.Level)])
+
+# Confidence level visualization
+ggplot(fin_edu, aes(x = Confidence.Level)) +
+  geom_histogram(binwidth = 1, color = "black", fill = "skyblue") +
+  labs(x = "Confidence Level", y = "Frequency", 
+       title = "Histogram of Confidence Levels")
+
+# Comparative Analysis
+# Create a new column indicating presence of comments
+fin_edu$Comments_Present <- ifelse(!is.na(fin_edu$Comments), "Yes", "No")
+
+# Compare confidence levels based on presence of comments
+ggplot(fin_edu, aes(x = Comments_Present, y = Confidence.Level, fill = Comments_Present)) +
+  geom_boxplot() +
+  labs(x = "Comments Present", y = "Confidence Level", 
+       title = "Comparison of Confidence Levels based on Comments Presence")
+
+
+# Perform two-sample t-test
+t_test <- t.test(Confidence.Level ~ Comments_Present, data = fin_edu)
+
+# Print the results
+print(t_test)
+
+# Perform Wilcoxon rank-sum test (Mann-Whitney U test)
+wilcox_test <- wilcox.test(Confidence.Level ~ Comments_Present, data = fin_edu)
+
+# Print the results
+print(wilcox_test)
+
+# Create a new column indicating presence of questions
+fin_edu$Question_Present <- ifelse(!is.na(fin_edu$Questions.Preventing.Action), "Yes", "No")
+
+# Compare confidence levels based on presence of questions
+ggplot(fin_edu, aes(x = Question_Present, y = Confidence.Level, fill = Question_Present)) +
+  geom_boxplot() +
+  labs(x = "Question Present", y = "Confidence Level", 
+       title = "Comparison of Confidence Levels based on Question Presence")
+
+# Create a binary column indicating overcome obstacles
+fin_edu$OO_Present <- ifelse(!is.na(fin_edu$Overcome.Obstacles), "Yes", "No")
+
+# Compare confidence levels based on presence of overcome obstacles
+ggplot(fin_edu, aes(x = OO_Present, y = Confidence.Level, fill = OO_Present)) +
+  geom_boxplot() +
+  labs(x = "Question Present", y = "Confidence Level", 
+       title = "Comparison of Confidence Levels based on Overcome Obstacles")
+
+#### Question Analysis
+
+# Count occurrences of each category
+q_categories <- c("Credit card", "brokerage", "Bank", "tax", "financial planning", "insurance", "investment", "risk")
+q_category_counts <- setNames(rep(0, length(q_categories)), q_categories)
+
+
+for (cat1 in fin_edu$Question.Category) {
+  # Split by delimiter and convert to lower case
+  cat1_split <- str_split(cat1, "/")[[1]]
+  # Increment counts for each category found
+  for (sub_cat1 in cat1_split) {
+    if (sub_cat1 %in% q_categories) {
+      q_category_counts[sub_cat1] <- q_category_counts[sub_cat1] + 1
+    }
+  }
+}
+
+q_category_counts_df <- as.data.frame(as.table(q_category_counts))
+colnames(q_category_counts_df) <- c("Category", "Count")
+
+# Print the category counts
+print(q_category_counts_df)
 
 #### Comment Analysis
 
@@ -48,6 +122,24 @@ colnames(category_counts_df) <- c("Category", "Count")
 
 # Print the category counts
 print(category_counts_df)
+
+#### #### Pie Chart
+
+# Define colors to use from a palette
+colors <- brewer.pal(nrow(category_counts_df), "Set3")
+
+# Plotting a pie chart with specified colors
+pie(category_counts_df$Count, labels = category_counts_df$Category,
+    col = colors,
+    main = "Distribution of Comment Categories")
+
+# Adding a legend with specified colors
+legend("topright", legend = category_counts_df$Category,
+       fill = colors,
+       title = "Categories",
+       cex = 0.8)
+
+
 
 # Combine all sentences into a single string
 cb_compliment <- paste(key_compliment, collapse = " ")
